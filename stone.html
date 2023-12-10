@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stone Paper Scissor</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #bdf93d; /* Lime Yellow */
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    
+    h1 {
+      color: #333;
+      margin-top: 30px;
+    }
+    
+    .box {
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .choices {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    
+    .choice {
+      margin: 0 10px;
+      cursor: pointer;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: 2px solid #4CAF50;
+      border-radius: 5px;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    
+    .choice:hover {
+      background-color: #45a049;
+      border-color: #45a049;
+    }
+    
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #fff; /* Text color is white */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      border-radius: 5px;
+    }
+
+    .computer-choice {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #555;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+    }
+
+    .score {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+    }
+    
+    .logo {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 10px;
+    }
+
+    .reset-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .reset-button:hover {
+      background-color: #555;
+    }
+
+    /* Emoji styles */
+    .emoji {
+      font-size: 24px;
+      margin-top: 10px;
+    }
+
+    .emoji-green {
+      color: green;
+    }
+
+    .emoji-red {
+      color: red;
+    }
+
+    .emoji-yellow {
+      color: #ffd700; /* Light Yellow */
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Stone Paper Scissor</h1>
+
+    <img src="stone.jpg" alt="Game Logo" class="logo">
+
+    <div class="choices">
+      <div class="choice" onclick="play('stone')">Stone</div>
+      <div class="choice" onclick="play('paper')">Paper</div>
+      <div class="choice" onclick="play('scissor')">Scissor</div>
+    </div>
+    
+    <div class="result"></div>
+    <div class="computer-choice"></div>
+    <div class="score">User Wins: <span id="user-wins">0</span> | Computer Wins: <span id="computer-wins">0</span></div>
+    <div id="emoji" class="emoji"></div>
+    
+    <button class="reset-button" onclick="resetGame()">Reset Game</button>
+  </div>
+  
+  <script>
+    var userWins = 0;
+    var computerWins = 0;
+    var username = prompt("Please enter your name:");
+
+    function play(userChoice) {
+        var choices = ['stone', 'paper', 'scissor'];
+        var computerChoice = choices[Math.floor(Math.random() * choices.length)];
+
+        var result = '';
+        var emojiClass = '';
+
+        if (userChoice === computerChoice) {
+            result = 'It\'s a tie!';
+            emojiClass = 'emoji-yellow';
+        } else if (
+            (userChoice === 'stone' && computerChoice === 'scissor') ||
+            (userChoice === 'paper' && computerChoice === 'stone') ||
+            (userChoice === 'scissor' && computerChoice === 'paper')
+        ) {
+            result = 'You win!';
+            userWins++;
+            emojiClass = 'emoji-green';
+            speakResult(username + ' wins!');
+        } else {
+            result = 'You lose!';
+            computerWins++;
+            emojiClass = 'emoji-red';
+            speakResult('Computer wins!');
+        }
+
+        document.querySelector('.result').textContent = result;
+        document.querySelector('.result').className = 'result ' + getBackgroundColor(result);
+        document.querySelector('.computer-choice').textContent = 'Computer chose: ' + computerChoice;
+        document.getElementById('user-wins').textContent = userWins;
+        document.getElementById('computer-wins').textContent = computerWins;
+
+        var emojiElement = document.getElementById('emoji');
+        emojiElement.textContent = getEmoji(result);
+        emojiElement.className = 'emoji ' + emojiClass;
+
+        checkForWinner();
+    }
+
+    function speakResult(message) {
+        var utterance = new SpeechSynthesisUtterance(message);
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function checkForWinner() {
+        if (userWins === 5) {
+            alert('Congratulations! You are the overall winner!');
+            resetGame();
+        } else if (computerWins === 5) {
+            alert('Oops! Computer is the overall winner. Try again!');
+            resetGame();
+        }
+    }
+
+    function resetGame() {
+        userWins = 0;
+        computerWins = 0;
+        document.getElementById('user-wins').textContent = userWins;
+        document.getElementById('computer-wins').textContent = computerWins;
+        document.querySelector('.result').textContent = '';
+        document.querySelector('.result').className = 'result';
+        document.querySelector('.computer-choice').textContent = '';
+        document.getElementById('emoji').textContent = '';
+    }
+
+    function getEmoji(result) {
+        if (result === 'You win!') {
+            return '😊'; // Smiley face
+        } else if (result === 'You lose!') {
+            return '😢'; // Sad face
+        } else {
+            return '😐'; // Neutral face
+        }
+    }
+
+    function getBackgroundColor(result) {
+        return result === 'You win!' ? 'emoji-green' : result === 'You lose!' ? 'emoji-red' : 'emoji-yellow';
+    }
+</script>
+</body>
+</html>
